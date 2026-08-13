@@ -1,9 +1,39 @@
 <!-- BEGIN:nextjs-agent-rules -->
 
-# This is NOT the Next.js you know
+# Agent instructions
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+## Project
+jez.blue — a mobile-first micro-blog: hybrid of blog, media poster, and link-sharing feed. Single-column layout on all viewports; desktop is a centered narrow column, not a multi-column layout.
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+## Design language
+- Brutalist editorial aesthetic
+- All-lowercase text by default
+- Tight letter-spacing on headings (-0.07em range)
+- Inter or similar grotesque typeface
+- Minimal color; type and spacing do the work
+
+## General rules
+- Read relevant code before editing it.
+- Make small, focused changes.
+- Do not add dependencies without asking.
+- Do not commit, push, or deploy without approval.
+- Never commit secrets or .env files.
+- Run `npm run build` after substantive changes to verify nothing broke.
+
+## Commands
+- Install: `npm install`
+- Development: `npm run dev`
+- Lint: `npm run lint`
+- Build: `npm run build`
+
+## Git workflow
+- Feature branches for all changes; never commit directly to main.
+- Show `git diff` before committing.
+- Clear commit messages, lowercase, imperative mood.
+
+## Definition of done
+- `npm run build` passes.
+- `npm run lint` passes.
+- Layout works at mobile width (~390px) and as a single centered column on desktop.
 
 <!-- END:nextjs-agent-rules -->
