@@ -40,10 +40,11 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
   };
 
   return (
-    <div className="relative">
+    <>
       <div
         ref={containerRef}
-        className="relative w-full aspect-square bg-white overflow-hidden"
+        className="relative w-full aspect-square overflow-hidden"
+        style={{ touchAction: 'pan-y' }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -60,7 +61,7 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
                 fill
                 className="object-cover"
                 priority={index === 0}
-                sizes="(max-width: 640px) 100vw, 640px"
+                sizes="100vw"
               />
             </div>
           ))}
@@ -68,21 +69,20 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
       </div>
       
       {media.length > 1 && (
-        <div className="flex justify-center gap-2 py-4">
+        <div className="flex justify-center gap-2 py-6">
           {media.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className="w-2 h-2 rounded-full transition-colors"
+              className="w-1.5 h-1.5 rounded-full transition-colors select-none"
               style={{
-                backgroundColor: index === currentIndex ? '#000' : '#fff',
-                border: '1px solid #000',
+                backgroundColor: index === currentIndex ? '#000' : '#CCCCCC',
               }}
               aria-label={`Go to image ${index + 1}`}
             />
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 }

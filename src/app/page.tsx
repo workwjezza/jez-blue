@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Header from '@/components/Header';
-import CategoryFilter from '@/components/CategoryFilter';
 import PostGrid from '@/components/PostGrid';
 import { storage } from '@/lib/storage';
 import type { Post, PostCategory } from '@/types/post';
@@ -22,12 +21,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <Header />
-      <div className="pt-12">
-        <CategoryFilter 
-          activeCategory={activeCategory} 
-          onCategoryChange={setActiveCategory} 
-        />
+      <Header 
+        activeCategory={activeCategory} 
+        onCategoryChange={setActiveCategory} 
+      />
+      <div className="pt-10">
         <PostGrid posts={filteredPosts} />
       </div>
     </div>
