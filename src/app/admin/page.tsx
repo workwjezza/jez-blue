@@ -44,7 +44,7 @@ export default function AdminPage() {
           {posts.map((post) => (
             <div
               key={post.id}
-              className="bg-white p-4 flex items-center justify-between gap-4"
+              className="bg-white p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
@@ -60,22 +60,22 @@ export default function AdminPage() {
                 <p className="text-sm truncate">{post.title}</p>
               </div>
               
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => toggleStatus(post.id, post.status)}
-                  className="text-xs px-3 py-2 border border-black hover:bg-black hover:text-white transition-colors"
+                  className="text-xs py-3 sm:py-2 sm:px-3 border border-black hover:bg-black hover:text-white transition-colors"
                 >
                   {post.status === 'published' ? 'unpublish' : 'publish'}
                 </button>
                 <Link
                   href={`/admin/edit/${post.id}`}
-                  className="text-xs px-3 py-2 border border-black hover:bg-black hover:text-white transition-colors"
+                  className="text-xs py-3 sm:py-2 sm:px-3 border border-black hover:bg-black hover:text-white transition-colors text-center"
                 >
                   edit
                 </Link>
                 <button
                   onClick={() => handleDelete(post.id)}
-                  className="text-xs px-3 py-2 border border-black hover:bg-black hover:text-white transition-colors"
+                  className="text-xs py-3 sm:py-2 sm:px-3 border border-black hover:bg-black hover:text-white transition-colors"
                 >
                   delete
                 </button>

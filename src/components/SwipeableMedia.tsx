@@ -48,6 +48,7 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
+          touchAction: 'pan-y',
         }}
       >
         <style jsx>{`
