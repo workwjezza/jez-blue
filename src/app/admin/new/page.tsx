@@ -125,6 +125,21 @@ export default function NewPostPage() {
     setTextCards(newCards);
   };
 
+  const handleAddTextCard = () => {
+    // Save current card and create a new one
+    const newCards = [...textCards];
+    newCards.push({ id: `${Date.now()}`, content: '' });
+    setTextCards(newCards);
+    setActiveCardIndex(newCards.length - 1);
+    
+    // Focus the textarea after state update
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
+    }, 0);
+  };
+
   const handleSubmit = () => {
     const hasContent = textCards.some(card => card.content.trim()) || selectedImages.length > 0;
     
@@ -221,29 +236,68 @@ export default function NewPostPage() {
           paddingBottom: selectedImages.length > 0 ? 'calc(140px + env(safe-area-inset-bottom))' : 'calc(80px + env(safe-area-inset-bottom))',
         }}
       >
-        <textarea
-          ref={textareaRef}
-          value={textCards[activeCardIndex]?.content || ''}
-          onChange={(e) => handleTextChange(e.target.value)}
-          placeholder="what is happening"
-          className="w-full font-mono lowercase resize-none"
-          style={{
-            padding: '20px',
-            fontSize: '18px',
-            lineHeight: '1.4',
-            border: 'none',
-            outline: 'none',
-            background: 'transparent',
-            minHeight: '200px',
-          }}
-        />
+        <div style={{ position: 'relative' }}>
+          <textarea
+            ref={textareaRef}
+            value={textCards[activeCardIndex]?.content || ''}
+            onChange={(e) => handleTextChange(e.target.value)}
+            placeholder="what is happening"
+            className="w-full font-mono lowercase resize-none"
+            style={{
+              padding: '20px',
+              paddingBottom: '60px',
+              fontSize: '18px',
+              lineHeight: '1.4',
+              border: 'none',
+              outline: 'none',
+              background: 'transparent',
+              minHeight: '200px',
+            }}
+          />
+          
+          {/* Character counter and add card button */}
+          <div className="px-5 flex items-center justify-between" style={{ marginTop: '-40px', position: 'relative', zIndex: 1 }}>
+            <div style={{ flex: 1 }} />
+            <div className="flex items-center gap-3">
+              {textCards[activeCardIndex]?.content && (
+                <span className="text-[11px] font-mono" style={{ color: '#999999' }}>
+                  {textCards[activeCardIndex].content.length}/300
+                </span>
+              )}
+              <button
+                onClick={handleAddTextCard}
+                className="text-base hover:opacity-50 transition-opacity"
+                style={{
+                  minWidth: '44px',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                aria-label="Add new text card"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
         
-        {/* Character counter */}
-        {textCards[activeCardIndex]?.content && (
-          <div className="px-5 text-right">
-            <span className="text-[11px] font-mono" style={{ color: '#999999' }}>
-              {textCards[activeCardIndex].content.length}/300
-            </span>
+        {/* Text card indicators */}
+        {textCards.length > 1 && (
+          <div className="flex justify-center gap-2 px-5" style={{ marginTop: '16px' }}>
+            {textCards.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveCardIndex(index)}
+                className="rounded-full transition-colors"
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  backgroundColor: index === activeCardIndex ? '#000' : '#CCCCCC',
+                }}
+                aria-label={`Edit card ${index + 1}`}
+              />
+            ))}
           </div>
         )}
       </div>

@@ -2,18 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import type { PostCategory } from '@/types/post';
 
-interface HeaderProps {
-  activeCategory?: PostCategory | 'all';
-  onCategoryChange?: (category: PostCategory | 'all') => void;
-}
-
-const categories: (PostCategory | 'all')[] = ['all', 'text', 'media', 'links'];
-
-export default function Header({ activeCategory, onCategoryChange }: HeaderProps) {
+export default function Header() {
   const pathname = usePathname();
-  const isHome = pathname === '/';
   const isAdmin = pathname?.startsWith('/admin');
 
   return (
@@ -41,28 +32,7 @@ export default function Header({ activeCategory, onCategoryChange }: HeaderProps
           +
         </Link>
         
-        {isHome && activeCategory && onCategoryChange && (
-          <div className="flex gap-4">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => onCategoryChange(category)}
-                className={`text-[10px] uppercase tracking-[0.08em] font-normal transition-colors select-none user-select-none ${
-                  activeCategory === category ? 'text-black' : 'text-[#999999] hover:text-black'
-                }`}
-                style={{
-                  minWidth: '44px',
-                  minHeight: '44px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        )}
+        <div style={{ flex: 1 }} />
         
         <Link 
           href={isAdmin ? '/' : '/admin'} 
