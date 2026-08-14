@@ -53,8 +53,8 @@ export default function PostDetail() {
       <div style={{ paddingTop: 'calc(56px + env(safe-area-inset-top))' }}>
         {post.postType === 'text' ? (
           <div 
-            className="w-full aspect-square flex items-center justify-center bg-white mx-auto"
-            style={{ padding: '40px', maxWidth: '100vw', maxHeight: '70vh' }}
+            className="w-full flex items-center justify-center bg-white mx-auto"
+            style={{ padding: '48px 32px' }}
           >
             <p 
               className="text-center lowercase font-mono"

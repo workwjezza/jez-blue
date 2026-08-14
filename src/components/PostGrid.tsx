@@ -15,25 +15,8 @@ interface PostCardProps {
 }
 
 function PostCard({ post }: PostCardProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [touchedCardId, setTouchedCardId] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const touchTargetRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      const scrollLeft = container.scrollLeft;
-      const itemWidth = container.offsetWidth;
-      const newIndex = Math.round(scrollLeft / itemWidth);
-      setCurrentIndex(newIndex);
-    };
-
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handleTouchStart = () => {
     setTouchedCardId(post.id);
@@ -43,9 +26,8 @@ function PostCard({ post }: PostCardProps) {
     setTouchedCardId(null);
   };
 
-  // Determine if this post has multiple cards
+  // Determine if this post has multiple cards (for dot indicators only)
   const hasMultipleCards = post.media && post.media.length > 1;
-  const cards = hasMultipleCards ? post.media : null;
 
   return (
     <div style={{ marginBottom: '48px' }}>
@@ -55,58 +37,15 @@ function PostCard({ post }: PostCardProps) {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {hasMultipleCards && cards ? (
-          // Multiple cards - horizontal scroll
-          <div
-            ref={containerRef}
-            className="relative w-full flex"
-            style={{
-              overflowX: 'scroll',
-              scrollSnapType: 'x mandatory',
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-              touchAction: 'pan-x',
-            }}
-          >
-            <style jsx>{`
-              div::-webkit-scrollbar {
-                display: none;
-              }
-            `}</style>
-            {cards.map((item, index) => (
-              <div
-                key={index}
-                ref={index === 0 ? touchTargetRef : null}
-                className={`relative flex-shrink-0 w-full ${touchedCardId === post.id ? 'glass-effect' : ''}`}
-                style={{
-                  flex: '0 0 100%',
-                  scrollSnapAlign: 'center',
-                }}
-              >
-                <div className="relative w-full">
-                  <Image
-                    src={item.src}
-                    alt={item.alt}
-                    width={1200}
-                    height={800}
-                    className="w-full h-auto object-contain"
-                    style={{ maxWidth: '100%', height: 'auto' }}
-                    sizes="calc(100vw - 40px)"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : post.postType === 'text' ? (
-          // Single text card
+        {post.postType === 'text' ? (
+          // Text card - compact square tile with border
           <div 
             ref={touchTargetRef}
             className={`w-full aspect-square flex items-center justify-center bg-white border border-black ${touchedCardId === post.id ? 'glass-effect' : ''}`}
-            style={{ padding: '40px' }}
+            style={{ padding: '32px' }}
           >
             <p 
-              className="text-center"
+              className="text-center lowercase"
               style={{
                 fontSize: post.textSize === 'small' ? '14px' : post.textSize === 'large' ? '24px' : '18px',
                 lineHeight: '1.4'
@@ -116,7 +55,7 @@ function PostCard({ post }: PostCardProps) {
             </p>
           </div>
         ) : (
-          // Single media card
+          // Media card - show only first card
           <div 
             ref={touchTargetRef}
             className={`relative w-full ${touchedCardId === post.id ? 'glass-effect' : ''}`}
@@ -139,16 +78,16 @@ function PostCard({ post }: PostCardProps) {
         <p className="text-xs uppercase tracking-[0.08em] font-normal font-mono">
           {storage.formatPostNumber(post.number)}
         </p>
-        {hasMultipleCards && cards && cards.length > 1 && (
+        {hasMultipleCards && (
           <div className="flex justify-center gap-2" style={{ marginTop: '8px' }}>
-            {cards.map((_, index) => (
+            {post.media?.map((_, index) => (
               <div
                 key={index}
                 className="rounded-full"
                 style={{
                   width: '6px',
                   height: '6px',
-                  backgroundColor: index === currentIndex ? '#000' : '#CCCCCC',
+                  backgroundColor: index === 0 ? '#000' : '#CCCCCC',
                 }}
               />
             ))}

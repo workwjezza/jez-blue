@@ -64,8 +64,8 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
           >
             {item.type === 'text' ? (
               <div 
-                className="w-full aspect-square flex items-center justify-center bg-white"
-                style={{ padding: '40px', maxWidth: '100%', maxHeight: '70vh' }}
+                className="w-full flex items-center justify-center bg-white"
+                style={{ padding: '48px 32px' }}
               >
                 <p 
                   className="text-center lowercase font-mono"
