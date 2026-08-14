@@ -26,31 +26,56 @@ export const storage = {
     return storage.getPosts().find(post => post.id === id);
   },
 
+  renumberPublishedPosts: (posts: Post[]): Post[] => {
+    // Get all published posts sorted by createdAt
+    const publishedPosts = posts
+      .filter(p => p.status === 'published')
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    
+    // Renumber them sequentially starting from 0
+    publishedPosts.forEach((post, index) => {
+      post.number = index;
+    });
+    
+    return posts;
+  },
+
   getNextPostNumber: (): number => {
     const posts = storage.getPosts();
-    if (posts.length === 0) return 0;
-    const maxNumber = Math.max(...posts.map(p => p.number));
+    const publishedPosts = posts.filter(p => p.status === 'published');
+    if (publishedPosts.length === 0) return 0;
+    const maxNumber = Math.max(...publishedPosts.map(p => p.number));
     return maxNumber + 1;
   },
 
   addPost: (post: Post): void => {
     const posts = storage.getPosts();
     posts.push(post);
-    storage.savePosts(posts);
+    const renumbered = storage.renumberPublishedPosts(posts);
+    storage.savePosts(renumbered);
   },
 
   updatePost: (id: string, updates: Partial<Post>): void => {
     const posts = storage.getPosts();
     const index = posts.findIndex(post => post.id === id);
     if (index !== -1) {
+      const oldStatus = posts[index].status;
       posts[index] = { ...posts[index], ...updates };
-      storage.savePosts(posts);
+      
+      // If status changed, renumber
+      if (updates.status && updates.status !== oldStatus) {
+        const renumbered = storage.renumberPublishedPosts(posts);
+        storage.savePosts(renumbered);
+      } else {
+        storage.savePosts(posts);
+      }
     }
   },
 
   deletePost: (id: string): void => {
     const posts = storage.getPosts().filter(post => post.id !== id);
-    storage.savePosts(posts);
+    const renumbered = storage.renumberPublishedPosts(posts);
+    storage.savePosts(renumbered);
   },
 
   initializeMockData: (): void => {

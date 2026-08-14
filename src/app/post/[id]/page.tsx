@@ -10,7 +10,6 @@ export default function PostDetail() {
   const params = useParams();
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
-  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -71,27 +70,13 @@ export default function PostDetail() {
           post.media && <SwipeableMedia media={post.media} />
         )}
         
-        <div className="text-center px-6 space-y-4" style={{ marginTop: '16px' }}>
+        <div className="text-center px-6 space-y-4" style={{ marginTop: '32px' }}>
           <p className="text-xs uppercase tracking-[0.08em] font-normal font-mono select-none user-select-none">
             {storage.formatPostNumber(post.number)}
           </p>
           <p className="text-xs opacity-60 lowercase font-mono select-none user-select-none">
             {formattedDate}
           </p>
-          <button
-            onClick={() => setIsSaved(!isSaved)}
-            className="text-[28px] hover:opacity-50 transition-opacity select-none user-select-none"
-            style={{ 
-              minWidth: '48px',
-              minHeight: '48px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            aria-label={isSaved ? 'Unsave post' : 'Save post'}
-          >
-            {isSaved ? '−' : '+'}
-          </button>
         </div>
       </div>
     </div>

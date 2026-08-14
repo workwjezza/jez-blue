@@ -12,7 +12,10 @@ export default function Home() {
 
   useEffect(() => {
     storage.initializeMockData();
-    setPosts(storage.getPosts().filter(p => p.status === 'published'));
+    const publishedPosts = storage.getPosts()
+      .filter(p => p.status === 'published')
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()); // Reverse chronological
+    setPosts(publishedPosts);
   }, []);
 
   // Filter by post type instead of tags

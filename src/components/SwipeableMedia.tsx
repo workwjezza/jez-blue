@@ -58,13 +58,12 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
             style={{
               flex: '0 0 100%',
               scrollSnapAlign: 'center',
-              minHeight: '60vh',
             }}
           >
             {item.type === 'text' ? (
               <div 
                 className="w-full aspect-square flex items-center justify-center bg-white"
-                style={{ padding: '40px', maxWidth: '100%' }}
+                style={{ padding: '40px', maxWidth: '100%', border: 'none' }}
               >
                 <p 
                   className="text-center lowercase font-mono"
@@ -77,17 +76,17 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
                 </p>
               </div>
             ) : (
-              <div className="relative w-full h-full flex items-center justify-center" style={{ padding: '0 20px' }}>
-                <div className="relative w-full" style={{ maxHeight: '60vh' }}>
+              <div className="relative w-full flex items-center justify-center" style={{ padding: '0 20px' }}>
+                <div className="relative w-full">
                   <Image
                     src={item.src}
                     alt={item.alt}
                     width={1200}
-                    height={800}
-                    className="w-full h-auto object-contain"
+                    height={1600}
+                    className="w-full h-auto"
+                    style={{ objectFit: 'contain' }}
                     priority={index === 0}
                     sizes="calc(100vw - 40px)"
-                    style={{ maxHeight: '60vh' }}
                   />
                 </div>
               </div>
