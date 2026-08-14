@@ -20,12 +20,13 @@ export default function PostGrid({ posts }: PostGridProps) {
   if (!mounted) return null;
 
   return (
-    <div className="w-full" style={{ padding: '80px 0' }}>
+    <div className="w-full" style={{ padding: '80px 20px 0 20px' }}>
       {posts.map((post) => (
         <Link
           key={post.id}
           href={`/post/${post.id}`}
-          className="block w-full mb-20 select-none"
+          className="block w-full select-none"
+          style={{ marginBottom: '48px' }}
         >
           {post.postType === 'text' ? (
             // Text post - square with centered text
@@ -44,7 +45,7 @@ export default function PostGrid({ posts }: PostGridProps) {
               </p>
             </div>
           ) : (
-            // Media post - full width, natural aspect ratio
+            // Media post - fills space between margins
             <div className="relative w-full">
               <Image
                 src={post.media?.[0]?.src || ''}
@@ -53,7 +54,7 @@ export default function PostGrid({ posts }: PostGridProps) {
                 height={800}
                 className="w-full h-auto object-contain"
                 style={{ maxWidth: '100%', height: 'auto' }}
-                sizes="100vw"
+                sizes="calc(100vw - 40px)"
               />
             </div>
           )}

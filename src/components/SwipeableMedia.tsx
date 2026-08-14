@@ -3,8 +3,15 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 
+interface MediaItem {
+  src: string;
+  alt: string;
+  type?: 'image' | 'text';
+  content?: string;
+}
+
 interface SwipeableMediaProps {
-  media: { src: string; alt: string }[];
+  media: MediaItem[];
 }
 
 export default function SwipeableMedia({ media }: SwipeableMediaProps) {
@@ -26,29 +33,17 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
     return () => container.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToIndex = (index: number) => {
-    const container = containerRef.current;
-    if (!container) return;
-    
-    const itemWidth = container.offsetWidth;
-    container.scrollTo({
-      left: index * itemWidth,
-      behavior: 'smooth'
-    });
-  };
-
   return (
     <>
       <div
         ref={containerRef}
-        className="relative w-full overflow-x-scroll overflow-y-hidden flex"
+        className="relative w-full flex"
         style={{
-          height: '60vh',
+          overflowX: 'scroll',
           scrollSnapType: 'x mandatory',
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
-          touchAction: 'pan-y',
         }}
       >
         <style jsx>{`
@@ -59,22 +54,44 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
         {media.map((item, index) => (
           <div
             key={index}
-            className="relative flex-shrink-0 w-full h-full flex items-center justify-center"
+            className="relative flex-shrink-0 w-full flex items-center justify-center"
             style={{
+              flex: '0 0 100%',
               scrollSnapAlign: 'center',
-              padding: '0 15%'
+              minHeight: '60vh',
             }}
           >
-            <div className="relative w-full h-full">
-              <Image
-                src={item.src}
-                alt={item.alt}
-                fill
-                className="object-contain"
-                priority={index === 0}
-                sizes="70vw"
-              />
-            </div>
+            {item.type === 'text' ? (
+              <div 
+                className="w-full aspect-square flex items-center justify-center bg-white"
+                style={{ padding: '40px', maxWidth: '100%' }}
+              >
+                <p 
+                  className="text-center lowercase font-mono"
+                  style={{
+                    fontSize: '18px',
+                    lineHeight: '1.4'
+                  }}
+                >
+                  {item.content}
+                </p>
+              </div>
+            ) : (
+              <div className="relative w-full h-full flex items-center justify-center" style={{ padding: '0 20px' }}>
+                <div className="relative w-full" style={{ maxHeight: '60vh' }}>
+                  <Image
+                    src={item.src}
+                    alt={item.alt}
+                    width={1200}
+                    height={800}
+                    className="w-full h-auto object-contain"
+                    priority={index === 0}
+                    sizes="calc(100vw - 40px)"
+                    style={{ maxHeight: '60vh' }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -84,14 +101,22 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
           {media.map((_, index) => (
             <button
               key={index}
-              onClick={() => scrollToIndex(index)}
+              onClick={() => {
+                const container = containerRef.current;
+                if (!container) return;
+                const itemWidth = container.offsetWidth;
+                container.scrollTo({
+                  left: index * itemWidth,
+                  behavior: 'smooth'
+                });
+              }}
               className="rounded-full transition-colors select-none user-select-none"
               style={{
                 width: '6px',
                 height: '6px',
                 backgroundColor: index === currentIndex ? '#000' : '#CCCCCC',
               }}
-              aria-label={`Go to image ${index + 1}`}
+              aria-label={`Go to card ${index + 1}`}
             />
           ))}
         </div>

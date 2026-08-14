@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
 import { storage } from '@/lib/storage';
 import type { Post } from '@/types/post';
 
@@ -35,62 +34,94 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen">
-      <Header />
-      <div className="pt-12 max-w-[640px] mx-auto p-4">
-        <div className="flex justify-between items-center mb-6 pb-4 border-b border-black">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl">admin</h1>
+      <header 
+        className="fixed top-0 left-0 right-0 z-[100]" 
+        style={{ 
+          paddingTop: 'env(safe-area-inset-top)',
+          background: 'rgba(255, 255, 255, 0.75)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
+      >
+        <div className="flex items-center justify-between h-[56px] px-5">
+          <div className="flex items-center gap-3">
+            <Link 
+              href="/" 
+              className="text-base hover:opacity-50 transition-opacity"
+              style={{
+                minWidth: '44px',
+                minHeight: '44px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              ←
+            </Link>
+            <h1 className="text-sm lowercase font-mono">admin</h1>
             <button
               onClick={handleLogout}
-              className="text-xs px-3 py-1 border border-black hover:bg-black hover:text-white transition-colors"
+              className="text-xs lowercase font-mono hover:opacity-50 transition-opacity"
             >
               logout
             </button>
           </div>
-          <Link
-            href="/admin/new"
-            className="w-10 h-10 border border-black hover:bg-black hover:text-white transition-colors flex items-center justify-center text-xl"
+          <Link 
+            href="/" 
+            className="text-sm hover:opacity-50 transition-opacity"
+            style={{
+              minWidth: '44px',
+              minHeight: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            +
+            ☰
           </Link>
         </div>
+      </header>
 
-        <div className="space-y-px bg-black">
+      <div style={{ paddingTop: 'calc(56px + env(safe-area-inset-top))', padding: '0 20px' }}>
+        <div style={{ paddingTop: '40px' }}>
           {posts.map((post) => (
             <div
               key={post.id}
-              className="bg-white p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+              className="bg-white"
+              style={{ marginBottom: '32px' }}
             >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs opacity-60">{storage.formatPostNumber(post.number)}</span>
+              <div style={{ marginBottom: '16px' }}>
+                <div className="flex items-center gap-2" style={{ marginBottom: '8px' }}>
+                  <span className="text-xs font-mono opacity-60">{storage.formatPostNumber(post.number)}</span>
                   <span
-                    className={`text-xs px-2 py-0.5 border border-black ${
-                      post.status === 'published' ? 'bg-black text-white' : ''
-                    }`}
+                    className="text-xs font-mono bg-black text-white"
+                    style={{ padding: '2px 4px' }}
                   >
                     {post.status}
                   </span>
                 </div>
-                <p className="text-sm truncate">{post.title}</p>
+                <p className="text-sm font-mono lowercase truncate">{post.title}</p>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <div className="flex gap-2">
                 <button
                   onClick={() => toggleStatus(post.id, post.status)}
-                  className="text-xs py-3 sm:py-2 sm:px-3 border border-black hover:bg-black hover:text-white transition-colors"
+                  className="text-xs font-mono lowercase border border-black bg-white hover:bg-black hover:text-white transition-colors"
+                  style={{ flex: 1, minHeight: '48px' }}
                 >
                   {post.status === 'published' ? 'unpublish' : 'publish'}
                 </button>
                 <Link
                   href={`/admin/edit/${post.id}`}
-                  className="text-xs py-3 sm:py-2 sm:px-3 border border-black hover:bg-black hover:text-white transition-colors text-center"
+                  className="text-xs font-mono lowercase border border-black bg-white hover:bg-black hover:text-white transition-colors flex items-center justify-center"
+                  style={{ flex: 1, minHeight: '48px' }}
                 >
                   edit
                 </Link>
                 <button
                   onClick={() => handleDelete(post.id)}
-                  className="text-xs py-3 sm:py-2 sm:px-3 border border-black hover:bg-black hover:text-white transition-colors"
+                  className="text-xs font-mono lowercase border border-black bg-white hover:bg-black hover:text-white transition-colors"
+                  style={{ flex: 1, minHeight: '48px' }}
                 >
                   delete
                 </button>
@@ -101,7 +132,7 @@ export default function AdminPage() {
 
         {posts.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-sm opacity-60">no posts yet</p>
+            <p className="text-sm font-mono lowercase opacity-60">no posts yet</p>
           </div>
         )}
       </div>

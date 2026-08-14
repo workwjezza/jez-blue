@@ -18,17 +18,25 @@ export default function Header({ activeCategory, onCategoryChange }: HeaderProps
 
   return (
     <header 
-      className="fixed top-0 left-0 right-0 z-50" 
+      className="fixed top-0 left-0 right-0 z-[100]" 
       style={{ 
         paddingTop: 'env(safe-area-inset-top)',
-        height: '48px',
-        background: 'transparent'
+        background: 'rgba(255, 255, 255, 0.75)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
       }}
     >
-      <div className="flex items-center justify-between h-full px-6">
+      <div className="flex items-center justify-between h-[56px] px-5">
         <Link 
           href="/admin/new" 
           className="text-base hover:opacity-50 transition-opacity select-none user-select-none"
+          style={{
+            minWidth: '44px',
+            minHeight: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           +
         </Link>
@@ -42,6 +50,13 @@ export default function Header({ activeCategory, onCategoryChange }: HeaderProps
                 className={`text-[10px] uppercase tracking-[0.08em] font-normal transition-colors select-none user-select-none ${
                   activeCategory === category ? 'text-black' : 'text-[#999999] hover:text-black'
                 }`}
+                style={{
+                  minWidth: '44px',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
               >
                 {category}
               </button>
@@ -52,6 +67,13 @@ export default function Header({ activeCategory, onCategoryChange }: HeaderProps
         <Link 
           href={isAdmin ? '/' : '/admin'} 
           className="text-sm hover:opacity-50 transition-opacity select-none user-select-none"
+          style={{
+            minWidth: '44px',
+            minHeight: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           ☰
         </Link>

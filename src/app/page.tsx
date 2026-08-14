@@ -28,7 +28,7 @@ export default function Home() {
         activeCategory={activeCategory} 
         onCategoryChange={setActiveCategory} 
       />
-      <div className="pt-12">
+      <div style={{ paddingTop: 'calc(56px + env(safe-area-inset-top))' }}>
         <PostGrid posts={filteredPosts} />
       </div>
     </div>

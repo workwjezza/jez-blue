@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, FormEvent, ChangeEvent, useRef, DragEvent } from 'react';
+import { useState, useRef, ChangeEvent, DragEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
 import { storage } from '@/lib/storage';
 import type { Post } from '@/types/post';
 import Image from 'next/image';
@@ -15,13 +14,18 @@ interface TextCard {
 export default function NewPostPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [postType, setPostType] = useState<'media' | 'text' | 'link'>('media');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [selectedImages, setSelectedImages] = useState<{ src: string; alt: string }[]>([]);
   const [textCards, setTextCards] = useState<TextCard[]>([{ id: '1', content: '' }]);
-  const [linkUrl, setLinkUrl] = useState('');
-  const [linkDescription, setLinkDescription] = useState('');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [status, setStatus] = useState<'published' | 'draft'>('draft');
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
+
+  useEffect(() => {
+    // Auto-focus the textarea on mount
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, []);
 
   const compressImage = async (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -58,16 +62,17 @@ export default function NewPostPage() {
     if (!files || files.length === 0) return;
     
     const maxFiles = 20;
-    const filesToProcess = Array.from(files).slice(0, maxFiles);
+    const remainingSlots = maxFiles - selectedImages.length;
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
     
     const compressedImages = await Promise.all(
       filesToProcess.map(async (file) => {
         const compressed = await compressImage(file);
-        return { src: compressed, alt: '' }; // alt will be auto-generated on submit
+        return { src: compressed, alt: '' };
       })
     );
     
-    setSelectedImages(compressedImages);
+    setSelectedImages([...selectedImages, ...compressedImages]);
   };
 
   const handleImageDragStart = (e: DragEvent<HTMLDivElement>, index: number) => {
@@ -93,62 +98,37 @@ export default function NewPostPage() {
     setDraggedIndex(null);
   };
 
-  const handleTextChange = (cardId: string, value: string) => {
-    const cardIndex = textCards.findIndex(c => c.id === cardId);
-    if (cardIndex === -1) return;
+  const removeImage = (index: number) => {
+    const newImages = [...selectedImages];
+    newImages.splice(index, 1);
+    setSelectedImages(newImages);
+  };
 
+  const handleTextChange = (value: string) => {
     const newCards = [...textCards];
-    newCards[cardIndex].content = value;
+    newCards[activeCardIndex].content = value;
 
     // Auto-split if over 300 characters
     if (value.length > 300) {
       const overflow = value.slice(300);
-      newCards[cardIndex].content = value.slice(0, 300);
+      newCards[activeCardIndex].content = value.slice(0, 300);
       
       // Add overflow to next card or create new one
-      if (cardIndex + 1 < newCards.length) {
-        newCards[cardIndex + 1].content = overflow + newCards[cardIndex + 1].content;
+      if (activeCardIndex + 1 < newCards.length) {
+        newCards[activeCardIndex + 1].content = overflow + newCards[activeCardIndex + 1].content;
       } else {
-        newCards.push({ id: `${cardIndex + 1}-${value.length}`, content: overflow });
+        newCards.push({ id: `${Date.now()}`, content: overflow });
       }
+      setActiveCardIndex(activeCardIndex + 1);
     }
 
     setTextCards(newCards);
   };
 
-  const handleTextCardDragStart = (e: DragEvent<HTMLDivElement>, index: number) => {
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleTextCardDrop = (e: DragEvent<HTMLDivElement>, dropIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex === null) return;
+  const handleSubmit = () => {
+    const hasContent = textCards.some(card => card.content.trim()) || selectedImages.length > 0;
     
-    const newCards = [...textCards];
-    const draggedCard = newCards[draggedIndex];
-    newCards.splice(draggedIndex, 1);
-    newCards.splice(dropIndex, 0, draggedCard);
-    
-    setTextCards(newCards);
-    setDraggedIndex(null);
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    
-    if (postType === 'media' && selectedImages.length === 0) {
-      alert('please select at least one photo for media posts');
-      return;
-    }
-
-    if (postType === 'text' && textCards.every(card => !card.content.trim())) {
-      alert('please enter content for text posts');
-      return;
-    }
-
-    if (postType === 'link' && !linkUrl.trim()) {
-      alert('please enter a url for link posts');
+    if (!hasContent) {
       return;
     }
 
@@ -161,193 +141,183 @@ export default function NewPostPage() {
       alt: `${formattedNumber} image ${index + 1}`
     }));
 
-    // Combine text cards into content
-    const textContent = textCards.map(card => card.content).join('\n\n');
+    // Determine post type
+    let postType: 'media' | 'text' | 'link' = 'text';
+    let content = '';
+    let media = undefined;
+
+    if (selectedImages.length > 0 && textCards.every(card => !card.content.trim())) {
+      // Media only
+      postType = 'media';
+      media = mediaWithAlt;
+    } else if (selectedImages.length === 0 && textCards.some(card => card.content.trim())) {
+      // Text only
+      postType = 'text';
+      content = textCards.map(card => card.content).filter(c => c.trim()).join('\n\n');
+    } else if (selectedImages.length > 0 && textCards.some(card => card.content.trim())) {
+      // Mixed - treat as media with text cards
+      postType = 'media';
+      const textContent = textCards.map(card => card.content).filter(c => c.trim()).join('\n\n');
+      content = textContent;
+      media = mediaWithAlt;
+    }
 
     const newPost: Post = {
       id: Date.now().toString(),
       number: postNumber,
-      title: postType === 'link' ? linkDescription || linkUrl : `post ${formattedNumber}`,
-      content: postType === 'text' ? textContent : (postType === 'link' ? linkUrl : undefined),
+      title: `post ${formattedNumber}`,
+      content: content || undefined,
       postType: postType,
-      media: postType === 'media' ? mediaWithAlt : undefined,
-      status: status,
+      media: media,
+      status: 'published',
       createdAt: new Date().toISOString(),
     };
 
     storage.addPost(newPost);
-    router.push('/admin');
+    router.push('/');
   };
 
+  const hasContent = textCards.some(card => card.content.trim()) || selectedImages.length > 0;
+
   return (
-    <div className="min-h-screen">
-      <Header />
-      <div className="pt-12 max-w-[640px] mx-auto p-4">
-        <h1 className="text-2xl mb-6 pb-4 border-b border-black">new post</h1>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Fixed top bar */}
+      <header 
+        className="fixed top-0 left-0 right-0 z-[100]" 
+        style={{ 
+          paddingTop: 'env(safe-area-inset-top)',
+          background: 'rgba(255, 255, 255, 0.75)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
+      >
+        <div className="flex items-center justify-between h-[56px] px-5">
+          <button
+            onClick={() => router.push('/admin')}
+            className="text-xs lowercase font-mono hover:opacity-50 transition-opacity"
+          >
+            cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!hasContent}
+            className="lowercase font-mono text-xs text-white transition-opacity"
+            style={{
+              background: hasContent ? '#000' : '#CCCCCC',
+              padding: '8px 20px',
+              borderRadius: '20px',
+            }}
+          >
+            post
+          </button>
+        </div>
+      </header>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs mb-1 opacity-60">post type</label>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setPostType('media')}
-                className={`flex-1 px-4 py-2 border border-black transition-colors ${
-                  postType === 'media' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'
-                }`}
-              >
-                media
-              </button>
-              <button
-                type="button"
-                onClick={() => setPostType('text')}
-                className={`flex-1 px-4 py-2 border border-black transition-colors ${
-                  postType === 'text' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'
-                }`}
-              >
-                text
-              </button>
-              <button
-                type="button"
-                onClick={() => setPostType('link')}
-                className={`flex-1 px-4 py-2 border border-black transition-colors ${
-                  postType === 'link' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'
-                }`}
-              >
-                link
-              </button>
-            </div>
+      {/* Main content area */}
+      <div 
+        className="flex-1"
+        style={{ 
+          paddingTop: 'calc(56px + env(safe-area-inset-top))',
+          paddingBottom: selectedImages.length > 0 ? 'calc(140px + env(safe-area-inset-bottom))' : 'calc(80px + env(safe-area-inset-bottom))',
+        }}
+      >
+        <textarea
+          ref={textareaRef}
+          value={textCards[activeCardIndex]?.content || ''}
+          onChange={(e) => handleTextChange(e.target.value)}
+          placeholder="what is happening"
+          className="w-full font-mono lowercase resize-none"
+          style={{
+            padding: '20px',
+            fontSize: '18px',
+            lineHeight: '1.4',
+            border: 'none',
+            outline: 'none',
+            background: 'transparent',
+            minHeight: '200px',
+          }}
+        />
+        
+        {/* Character counter */}
+        {textCards[activeCardIndex]?.content && (
+          <div className="px-5 text-right">
+            <span className="text-[11px] font-mono" style={{ color: '#999999' }}>
+              {textCards[activeCardIndex].content.length}/300
+            </span>
           </div>
+        )}
+      </div>
 
-          {postType === 'media' && (
-            <div>
-              <label className="block text-xs mb-1 opacity-60">photos (up to 20)</label>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full px-4 py-3 border border-black bg-white text-black hover:bg-black hover:text-white transition-colors text-xs"
-              >
-                select from photos
-              </button>
-              
-              {selectedImages.length > 0 && (
-                <>
-                  <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
-                    {selectedImages.map((img, index) => (
-                      <div
-                        key={index}
-                        draggable
-                        onDragStart={(e) => handleImageDragStart(e, index)}
-                        onDragOver={handleImageDragOver}
-                        onDrop={(e) => handleImageDrop(e, index)}
-                        className="relative flex-shrink-0 w-20 h-20 cursor-move"
-                      >
-                        <Image
-                          src={img.src}
-                          alt={`Preview ${index + 1}`}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs opacity-60 mt-2">
-                    {selectedImages.length} / 20 photos
-                  </p>
-                </>
-              )}
-            </div>
-          )}
-
-          {postType === 'text' && (
-            <div className="space-y-4">
-              {textCards.map((card, index) => (
+      {/* Bottom toolbar with thumbnail strip */}
+      <div 
+        className="fixed bottom-0 left-0 right-0 bg-white border-t border-black"
+        style={{ 
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      >
+        {/* Thumbnail strip */}
+        {selectedImages.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto px-5 py-3 border-b border-black">
+            <div className="flex gap-2">
+              {selectedImages.map((img, index) => (
                 <div
-                  key={card.id}
+                  key={index}
                   draggable
-                  onDragStart={(e) => handleTextCardDragStart(e, index)}
+                  onDragStart={(e) => handleImageDragStart(e, index)}
                   onDragOver={handleImageDragOver}
-                  onDrop={(e) => handleTextCardDrop(e, index)}
-                  className="cursor-move"
+                  onDrop={(e) => handleImageDrop(e, index)}
+                  className="relative flex-shrink-0 cursor-move"
+                  style={{ width: '80px', height: '80px' }}
                 >
-                  <textarea
-                    value={card.content}
-                    onChange={(e) => handleTextChange(card.id, e.target.value)}
-                    placeholder="start typing..."
-                    rows={6}
-                    className="w-full px-3 py-2 bg-white text-black resize-none"
-                    style={{ border: 'none', outline: 'none' }}
+                  <Image
+                    src={img.src}
+                    alt={`Preview ${index + 1}`}
+                    fill
+                    className="object-cover"
                   />
-                  <p className="text-xs opacity-60 mt-1">
-                    {card.content.length} / 300
-                  </p>
+                  <button
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 right-1 w-5 h-5 bg-black text-white flex items-center justify-center text-xs font-mono"
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
             </div>
-          )}
-
-          {postType === 'link' && (
-            <>
-              <div>
-                <label className="block text-xs mb-1 opacity-60">url *</label>
-                <input
-                  type="url"
-                  value={linkUrl}
-                  onChange={(e) => setLinkUrl(e.target.value)}
-                  placeholder="https://example.com"
-                  className="w-full px-3 py-2 border border-black bg-white text-black"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs mb-1 opacity-60">description</label>
-                <input
-                  type="text"
-                  value={linkDescription}
-                  onChange={(e) => setLinkDescription(e.target.value)}
-                  placeholder="optional description"
-                  className="w-full px-3 py-2 border border-black bg-white text-black"
-                />
-              </div>
-            </>
-          )}
-
-          <div>
-            <label className="block text-xs mb-1 opacity-60">status</label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as 'published' | 'draft')}
-              className="w-full px-3 py-2 border border-black bg-white text-black"
-            >
-              <option value="draft">draft</option>
-              <option value="published">published</option>
-            </select>
+            <span className="text-xs font-mono whitespace-nowrap" style={{ color: '#999999' }}>
+              {selectedImages.length}/20
+            </span>
           </div>
+        )}
 
-          <div className="flex gap-2 pt-4">
-            <button
-              type="submit"
-              className="flex-1 px-4 py-3 bg-black text-white hover:opacity-80 transition-opacity"
-            >
-              create post
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push('/admin')}
-              className="px-4 py-3 border border-black hover:bg-black hover:text-white transition-colors"
-            >
-              cancel
-            </button>
-          </div>
-        </form>
+        {/* Photo picker button */}
+        <div className="flex items-center px-5 py-4">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="hover:opacity-50 transition-opacity"
+            disabled={selectedImages.length >= 20}
+            style={{
+              minWidth: '44px',
+              minHeight: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="3" y="3" width="18" height="18" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
