@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminLoginPage() {
@@ -9,8 +9,7 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     setError(false);
     setLoading(true);
 
@@ -44,7 +43,16 @@ export default function AdminLoginPage() {
           jez.blue
         </h1>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-4">
+          <input
+            type="text"
+            name="username"
+            autoComplete="username"
+            value="admin"
+            readOnly
+            style={{position:'absolute',left:'-9999px',opacity:0}}
+            tabIndex={-1}
+          />
           <input
             type="password"
             value={password}
@@ -53,6 +61,10 @@ export default function AdminLoginPage() {
             className="w-full px-3 py-3 font-mono text-sm bg-white border border-black outline-none focus:outline-none"
             autoFocus
             disabled={loading}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
           />
           
           {error && (
@@ -60,7 +72,8 @@ export default function AdminLoginPage() {
           )}
           
           <button
-            type="submit"
+            type="button"
+            onClick={handleLogin}
             disabled={loading || !password}
             className="w-full px-3 py-3 font-mono text-sm bg-white border border-black hover:bg-black hover:text-white transition-colors disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-black"
           >
