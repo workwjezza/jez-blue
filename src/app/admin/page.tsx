@@ -2,16 +2,23 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { storage } from '@/lib/storage';
 import type { Post } from '@/types/post';
 
 export default function AdminPage() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     setPosts(storage.getPosts());
   }, []);
+
+  const handleLogout = async () => {
+    await fetch('/api/logout', { method: 'POST' });
+    router.push('/admin/login');
+  };
 
   const handleDelete = (id: string) => {
     if (confirm('delete this post?')) {
@@ -31,7 +38,15 @@ export default function AdminPage() {
       <Header />
       <div className="pt-12 max-w-[640px] mx-auto p-4">
         <div className="flex justify-between items-center mb-6 pb-4 border-b border-black">
-          <h1 className="text-2xl">admin</h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl">admin</h1>
+            <button
+              onClick={handleLogout}
+              className="text-xs px-3 py-1 border border-black hover:bg-black hover:text-white transition-colors"
+            >
+              logout
+            </button>
+          </div>
           <Link
             href="/admin/new"
             className="w-10 h-10 border border-black hover:bg-black hover:text-white transition-colors flex items-center justify-center text-xl"
