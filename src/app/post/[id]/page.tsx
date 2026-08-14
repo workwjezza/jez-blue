@@ -44,7 +44,24 @@ export default function PostDetail() {
         ←
       </button>
 
-      <SwipeableMedia media={post.media} />
+      {post.postType === 'text' ? (
+        <div 
+          className="w-full aspect-square flex items-center justify-center bg-white border border-black mx-auto"
+          style={{ padding: '40px', maxWidth: '100vw' }}
+        >
+          <p 
+            className="text-center"
+            style={{
+              fontSize: post.textSize === 'small' ? '14px' : post.textSize === 'large' ? '24px' : '18px',
+              lineHeight: '1.4'
+            }}
+          >
+            {post.content}
+          </p>
+        </div>
+      ) : (
+        post.media && <SwipeableMedia media={post.media} />
+      )}
       
       <div className="text-center px-6 space-y-4">
         <p className="text-sm uppercase tracking-[0.08em] font-normal font-mono select-none user-select-none">

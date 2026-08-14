@@ -29,8 +29,8 @@ export default function EditPostPage() {
           code: foundPost.code,
           title: foundPost.title,
           content: foundPost.content || '',
-          mediaSrc: foundPost.media[0]?.src || '',
-          mediaAlt: foundPost.media[0]?.alt || '',
+          mediaSrc: foundPost.media?.[0]?.src || '',
+          mediaAlt: foundPost.media?.[0]?.alt || '',
           tags: foundPost.tags?.join(', ') || '',
           status: foundPost.status,
         });
