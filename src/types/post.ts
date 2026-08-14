@@ -1,13 +1,12 @@
 export interface Post {
   id: string;
-  code: string; // e.g., "jb-001", "jb-002"
+  number: number; // automatic chronological number: 0, 1, 2, 3, etc.
   title: string;
   content?: string; // markdown supported
   media?: { src: string; alt: string }[]; // 1 or more images (optional for text posts)
-  postType?: 'media' | 'text'; // type of post
+  postType?: 'media' | 'text' | 'link'; // type of post
   textSize?: 'small' | 'medium' | 'large'; // for text posts
   status: 'published' | 'draft';
-  tags?: string[];
   createdAt: string;
 }
 

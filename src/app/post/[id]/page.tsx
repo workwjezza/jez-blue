@@ -65,7 +65,7 @@ export default function PostDetail() {
       
       <div className="text-center px-6 space-y-4">
         <p className="text-sm uppercase tracking-[0.08em] font-normal font-mono select-none user-select-none">
-          {post.code}
+          {storage.formatPostNumber(post.number)}
         </p>
         <p className="text-xs text-gray-500 select-none user-select-none">
           {formattedDate}
@@ -89,7 +89,6 @@ export default function PostDetail() {
       <InformationSection
         content={post.content}
         createdAt={post.createdAt}
-        tags={post.tags}
       />
     </div>
   );

@@ -11,12 +11,8 @@ export default function EditPostPage() {
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
   const [formData, setFormData] = useState({
-    code: '',
     title: '',
     content: '',
-    mediaSrc: '',
-    mediaAlt: '',
-    tags: '',
     status: 'draft' as 'published' | 'draft',
   });
 
@@ -26,12 +22,8 @@ export default function EditPostPage() {
       if (foundPost) {
         setPost(foundPost);
         setFormData({
-          code: foundPost.code,
           title: foundPost.title,
           content: foundPost.content || '',
-          mediaSrc: foundPost.media?.[0]?.src || '',
-          mediaAlt: foundPost.media?.[0]?.alt || '',
-          tags: foundPost.tags?.join(', ') || '',
           status: foundPost.status,
         });
       }
@@ -41,18 +33,15 @@ export default function EditPostPage() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     
-    if (!post || !formData.code || !formData.title || !formData.mediaSrc) {
-      alert('code, title, and at least one media item are required');
+    if (!post || !formData.title) {
+      alert('title is required');
       return;
     }
 
     storage.updatePost(post.id, {
-      code: formData.code,
       title: formData.title,
       content: formData.content || undefined,
-      media: [{ src: formData.mediaSrc, alt: formData.mediaAlt || formData.title }],
       status: formData.status,
-      tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : undefined,
     });
 
     router.push('/admin');
@@ -75,18 +64,12 @@ export default function EditPostPage() {
       <div className="pt-12 max-w-[640px] mx-auto p-4">
         <h1 className="text-2xl mb-6 pb-4 border-b border-black">edit post</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs mb-1 opacity-60">code *</label>
-            <input
-              type="text"
-              value={formData.code}
-              onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-              className="w-full px-3 py-2 border border-black bg-white text-black"
-              required
-            />
-          </div>
+        <div className="mb-4 p-3 bg-gray-50 border border-black">
+          <p className="text-xs opacity-60">post number (cannot be changed)</p>
+          <p className="text-sm font-mono">{storage.formatPostNumber(post.number)}</p>
+        </div>
 
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs mb-1 opacity-60">title *</label>
             <input
@@ -105,37 +88,6 @@ export default function EditPostPage() {
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               rows={6}
               className="w-full px-3 py-2 border border-black bg-white text-black resize-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs mb-1 opacity-60">media url *</label>
-            <input
-              type="url"
-              value={formData.mediaSrc}
-              onChange={(e) => setFormData({ ...formData, mediaSrc: e.target.value })}
-              className="w-full px-3 py-2 border border-black bg-white text-black"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs mb-1 opacity-60">media alt text</label>
-            <input
-              type="text"
-              value={formData.mediaAlt}
-              onChange={(e) => setFormData({ ...formData, mediaAlt: e.target.value })}
-              className="w-full px-3 py-2 border border-black bg-white text-black"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs mb-1 opacity-60">tags (comma-separated)</label>
-            <input
-              type="text"
-              value={formData.tags}
-              onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              className="w-full px-3 py-2 border border-black bg-white text-black"
             />
           </div>
 

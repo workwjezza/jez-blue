@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Post } from '@/types/post';
+import { storage } from '@/lib/storage';
 
 interface PostGridProps {
   posts: Post[];
@@ -60,7 +61,7 @@ export default function PostGrid({ posts }: PostGridProps) {
             className="text-xs uppercase tracking-[0.08em] font-normal text-center font-mono"
             style={{ marginTop: '16px' }}
           >
-            {post.code}
+            {storage.formatPostNumber(post.number)}
           </p>
         </Link>
       ))}

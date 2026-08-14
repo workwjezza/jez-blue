@@ -5,17 +5,10 @@ import { useState } from 'react';
 interface InformationSectionProps {
   content?: string;
   createdAt: string;
-  tags?: string[];
 }
 
-export default function InformationSection({ content, createdAt, tags }: InformationSectionProps) {
+export default function InformationSection({ content }: InformationSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).toLowerCase();
 
   return (
     <div className="px-6 text-center">
@@ -38,16 +31,6 @@ export default function InformationSection({ content, createdAt, tags }: Informa
           {content && (
             <div className="text-sm leading-relaxed whitespace-pre-wrap">
               {content}
-            </div>
-          )}
-          
-          {tags && tags.length > 0 && (
-            <div className="flex gap-2 flex-wrap justify-center">
-              {tags.map((tag) => (
-                <span key={tag} className="text-xs px-2 py-1 opacity-60 uppercase tracking-[0.08em]">
-                  {tag}
-                </span>
-              ))}
             </div>
           )}
         </div>

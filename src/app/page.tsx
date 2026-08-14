@@ -15,9 +15,12 @@ export default function Home() {
     setPosts(storage.getPosts().filter(p => p.status === 'published'));
   }, []);
 
+  // Filter by post type instead of tags
   const filteredPosts = activeCategory === 'all' 
     ? posts 
-    : posts.filter(post => post.tags?.includes(activeCategory));
+    : activeCategory === 'new'
+    ? posts.slice(0, 10) // Show latest 10 posts for "new"
+    : posts.filter(post => post.postType === activeCategory || (activeCategory === 'links' && post.postType === 'link'));
 
   return (
     <div className="min-h-screen bg-white">
