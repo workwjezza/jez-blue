@@ -28,11 +28,17 @@ export default function PostDetail() {
     );
   }
 
+  const formattedDate = new Date(post.createdAt).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).toLowerCase();
+
   return (
     <div className="min-h-screen bg-white">
       <button
         onClick={() => router.push('/')}
-        className="fixed left-6 text-xl z-50 hover:opacity-50 transition-opacity select-none"
+        className="fixed left-6 text-xl z-50 hover:opacity-50 transition-opacity select-none user-select-none"
         style={{ top: 'calc(env(safe-area-inset-top) + 1.5rem)' }}
       >
         ←
@@ -40,12 +46,23 @@ export default function PostDetail() {
 
       <SwipeableMedia media={post.media} />
       
-      <div className="text-center px-6 py-6 space-y-3">
-        <p className="text-xs uppercase tracking-[0.08em] font-normal select-none">{post.code}</p>
-        <h1 className="text-sm tracking-[0.02em] font-normal">{post.title}</h1>
+      <div className="text-center px-6 space-y-4">
+        <p className="text-sm uppercase tracking-[0.08em] font-normal font-mono select-none user-select-none">
+          {post.code}
+        </p>
+        <p className="text-xs text-gray-500 select-none user-select-none">
+          {formattedDate}
+        </p>
         <button
           onClick={() => setIsSaved(!isSaved)}
-          className="text-2xl hover:opacity-50 transition-opacity select-none"
+          className="text-[28px] hover:opacity-50 transition-opacity select-none user-select-none"
+          style={{ 
+            minWidth: '48px',
+            minHeight: '48px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
           aria-label={isSaved ? 'Unsave post' : 'Save post'}
         >
           {isSaved ? '−' : '+'}

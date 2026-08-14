@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, TouchEvent } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 
 interface SwipeableMediaProps {
@@ -9,63 +9,73 @@ interface SwipeableMediaProps {
 
 export default function SwipeableMedia({ media }: SwipeableMediaProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const minSwipeDistance = 50;
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-  const onTouchStart = (e: TouchEvent) => {
-    setTouchEnd(0);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const itemWidth = container.offsetWidth;
+      const newIndex = Math.round(scrollLeft / itemWidth);
+      setCurrentIndex(newIndex);
+    };
 
-  const onTouchMove = (e: TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
+  const scrollToIndex = (index: number) => {
+    const container = containerRef.current;
+    if (!container) return;
     
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (isLeftSwipe && currentIndex < media.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-    if (isRightSwipe && currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
+    const itemWidth = container.offsetWidth;
+    container.scrollTo({
+      left: index * itemWidth,
+      behavior: 'smooth'
+    });
   };
 
   return (
     <>
       <div
         ref={containerRef}
-        className="relative w-full aspect-square overflow-hidden"
-        style={{ touchAction: 'pan-y' }}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
+        className="relative w-full overflow-x-scroll overflow-y-hidden flex"
+        style={{
+          height: '60vh',
+          scrollSnapType: 'x mandatory',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
       >
-        <div
-          className="flex transition-transform duration-300 ease-out h-full"
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-        >
-          {media.map((item, index) => (
-            <div key={index} className="relative min-w-full h-full">
+        <style jsx>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
+        {media.map((item, index) => (
+          <div
+            key={index}
+            className="relative flex-shrink-0 w-full h-full flex items-center justify-center"
+            style={{
+              scrollSnapAlign: 'center',
+              padding: '0 15%'
+            }}
+          >
+            <div className="relative w-full h-full">
               <Image
                 src={item.src}
                 alt={item.alt}
                 fill
-                className="object-cover"
+                className="object-contain"
                 priority={index === 0}
-                sizes="100vw"
+                sizes="70vw"
               />
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
       
       {media.length > 1 && (
@@ -73,9 +83,11 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
           {media.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentIndex(index)}
-              className="w-1.5 h-1.5 rounded-full transition-colors select-none"
+              onClick={() => scrollToIndex(index)}
+              className="rounded-full transition-colors select-none user-select-none"
               style={{
+                width: '6px',
+                height: '6px',
                 backgroundColor: index === currentIndex ? '#000' : '#CCCCCC',
               }}
               aria-label={`Go to image ${index + 1}`}

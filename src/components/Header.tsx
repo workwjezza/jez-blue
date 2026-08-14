@@ -18,8 +18,8 @@ export default function Header({ activeCategory, onCategoryChange }: HeaderProps
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white z-50" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-      <div className="flex items-center justify-between h-10 px-6">
-        <Link href="/" className="text-base hover:opacity-50 transition-opacity select-none">
+      <div className="flex items-center justify-between h-12 px-6">
+        <Link href="/" className="text-base hover:opacity-50 transition-opacity select-none user-select-none">
           +
         </Link>
         
@@ -29,7 +29,7 @@ export default function Header({ activeCategory, onCategoryChange }: HeaderProps
               <button
                 key={category}
                 onClick={() => onCategoryChange(category)}
-                className={`text-[11px] uppercase tracking-[0.08em] font-normal transition-colors select-none ${
+                className={`text-[11px] uppercase tracking-[0.08em] font-normal transition-colors select-none user-select-none ${
                   activeCategory === category ? 'text-black' : 'text-[#CCCCCC] hover:text-black'
                 }`}
               >
@@ -41,7 +41,7 @@ export default function Header({ activeCategory, onCategoryChange }: HeaderProps
         
         <Link 
           href={isAdmin ? '/' : '/admin'} 
-          className="text-sm hover:opacity-50 transition-opacity opacity-40 select-none"
+          className="text-sm hover:opacity-50 transition-opacity select-none user-select-none"
         >
           {isAdmin ? '×' : '☰'}
         </Link>

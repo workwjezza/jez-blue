@@ -31,7 +31,7 @@ export default function PostGrid({ posts }: PostGridProps) {
         if (saved) {
           setColumns(parseInt(saved) as 1 | 2 | 3);
         } else {
-          setColumns(mobile ? 1 : 3);
+          setColumns(mobile ? 2 : 3); // Default mobile: 2 columns
         }
       }
     };
@@ -94,8 +94,12 @@ export default function PostGrid({ posts }: PostGridProps) {
     <>
       <div
         ref={containerRef}
-        className={`grid ${gridClass} gap-6 p-6 transition-all duration-300 ease-in-out`}
-        style={{ touchAction: 'pan-y' }}
+        className={`grid ${gridClass} transition-all duration-300 ease-in-out`}
+        style={{ 
+          touchAction: 'pan-y',
+          gap: '80px',
+          padding: '80px 40px'
+        }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -104,18 +108,21 @@ export default function PostGrid({ posts }: PostGridProps) {
           <Link
             key={post.id}
             href={`/post/${post.id}`}
-            className="flex flex-col items-center gap-3 select-none"
+            className="flex flex-col items-center select-none"
+            style={{ gap: '16px' }}
           >
-            <div className="relative w-full aspect-square">
-              <Image
-                src={post.media[0].src}
-                alt={post.media[0].alt}
-                fill
-                className="object-contain"
-                sizes={columns === 1 ? '100vw' : columns === 2 ? '50vw' : '33vw'}
-              />
+            <div className="relative w-full aspect-square flex items-center justify-center">
+              <div className="relative w-[60%] h-[60%]">
+                <Image
+                  src={post.media[0].src}
+                  alt={post.media[0].alt}
+                  fill
+                  className="object-contain"
+                  sizes={columns === 1 ? '60vw' : columns === 2 ? '30vw' : '20vw'}
+                />
+              </div>
             </div>
-            <p className="text-xs uppercase tracking-[0.08em] font-normal text-center">
+            <p className="text-xs uppercase tracking-[0.08em] font-normal text-center font-mono">
               {post.code}
             </p>
           </Link>

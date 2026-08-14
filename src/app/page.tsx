@@ -20,12 +20,12 @@ export default function Home() {
     : posts.filter(post => post.tags?.includes(activeCategory));
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <Header 
         activeCategory={activeCategory} 
         onCategoryChange={setActiveCategory} 
       />
-      <div className="pt-10">
+      <div className="pt-12">
         <PostGrid posts={filteredPosts} />
       </div>
     </div>
