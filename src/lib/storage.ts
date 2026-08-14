@@ -1,0 +1,131 @@
+import type { Post } from '@/types/post';
+
+const STORAGE_KEY = 'jez-blue-posts';
+
+export const storage = {
+  getPosts: (): Post[] => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  savePosts: (posts: Post[]): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+    } catch (error) {
+      console.error('Failed to save posts:', error);
+    }
+  },
+
+  getPost: (id: string): Post | undefined => {
+    return storage.getPosts().find(post => post.id === id);
+  },
+
+  addPost: (post: Post): void => {
+    const posts = storage.getPosts();
+    posts.push(post);
+    storage.savePosts(posts);
+  },
+
+  updatePost: (id: string, updates: Partial<Post>): void => {
+    const posts = storage.getPosts();
+    const index = posts.findIndex(post => post.id === id);
+    if (index !== -1) {
+      posts[index] = { ...posts[index], ...updates };
+      storage.savePosts(posts);
+    }
+  },
+
+  deletePost: (id: string): void => {
+    const posts = storage.getPosts().filter(post => post.id !== id);
+    storage.savePosts(posts);
+  },
+
+  initializeMockData: (): void => {
+    const existing = storage.getPosts();
+    if (existing.length > 0) return;
+
+    const mockPosts: Post[] = [
+      {
+        id: '1',
+        code: 'jb-001',
+        title: 'first post',
+        content: 'this is the first post on jez.blue. a brutalist micro-blog for sharing thoughts, media, and links.',
+        media: [
+          { src: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=800&fit=crop', alt: 'abstract architecture' }
+        ],
+        status: 'published',
+        tags: ['text', 'new'],
+        createdAt: new Date('2026-08-01').toISOString(),
+      },
+      {
+        id: '2',
+        code: 'jb-002',
+        title: 'brutalist design',
+        content: 'embracing raw materials and honest construction. no decoration, just pure form and function.',
+        media: [
+          { src: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=800&fit=crop', alt: 'concrete structure' },
+          { src: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=800&h=800&fit=crop', alt: 'minimal architecture' }
+        ],
+        status: 'published',
+        tags: ['media', 'new'],
+        createdAt: new Date('2026-08-05').toISOString(),
+      },
+      {
+        id: '3',
+        code: 'jb-003',
+        title: 'typography matters',
+        content: 'tight letter-spacing, all lowercase, grotesque sans-serif. let the type do the work.',
+        media: [
+          { src: 'https://images.unsplash.com/photo-1461958508236-9a742665a0d5?w=800&h=800&fit=crop', alt: 'typography' }
+        ],
+        status: 'published',
+        tags: ['text'],
+        createdAt: new Date('2026-08-08').toISOString(),
+      },
+      {
+        id: '4',
+        code: 'jb-004',
+        title: 'useful links',
+        content: 'https://brutalistwebsites.com\nhttps://www.are.na\nhttps://www.ffffound.com',
+        media: [
+          { src: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=800&fit=crop', alt: 'digital network' }
+        ],
+        status: 'published',
+        tags: ['links'],
+        createdAt: new Date('2026-08-10').toISOString(),
+      },
+      {
+        id: '5',
+        code: 'jb-005',
+        title: 'black and white',
+        content: 'pure contrast. no gradients, no shadows, no rounded corners.',
+        media: [
+          { src: 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=800&h=800&fit=crop', alt: 'black and white abstract' }
+        ],
+        status: 'published',
+        tags: ['media'],
+        createdAt: new Date('2026-08-12').toISOString(),
+      },
+      {
+        id: '6',
+        code: 'jb-006',
+        title: 'grid systems',
+        content: 'tight gutters, precise alignment, mathematical order.',
+        media: [
+          { src: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=800&fit=crop', alt: 'grid pattern' }
+        ],
+        status: 'published',
+        tags: ['media'],
+        createdAt: new Date('2026-08-13').toISOString(),
+      },
+    ];
+
+    storage.savePosts(mockPosts);
+  },
+};
