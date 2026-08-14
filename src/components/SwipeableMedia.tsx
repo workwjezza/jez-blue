@@ -44,6 +44,7 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
+          maxHeight: '70vh',
         }}
       >
         <style jsx>{`
@@ -58,12 +59,13 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
             style={{
               flex: '0 0 100%',
               scrollSnapAlign: 'center',
+              maxHeight: '70vh',
             }}
           >
             {item.type === 'text' ? (
               <div 
                 className="w-full aspect-square flex items-center justify-center bg-white"
-                style={{ padding: '40px', maxWidth: '100%', border: 'none' }}
+                style={{ padding: '40px', maxWidth: '100%', maxHeight: '70vh' }}
               >
                 <p 
                   className="text-center lowercase font-mono"
@@ -76,15 +78,15 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
                 </p>
               </div>
             ) : (
-              <div className="relative w-full flex items-center justify-center" style={{ padding: '0 20px' }}>
-                <div className="relative w-full">
+              <div className="relative w-full flex items-center justify-center" style={{ padding: '0 20px', maxHeight: '70vh' }}>
+                <div className="relative w-full" style={{ maxHeight: '70vh' }}>
                   <Image
                     src={item.src}
                     alt={item.alt}
                     width={1200}
                     height={1600}
                     className="w-full h-auto"
-                    style={{ objectFit: 'contain' }}
+                    style={{ objectFit: 'contain', maxHeight: '70vh' }}
                     priority={index === 0}
                     sizes="calc(100vw - 40px)"
                   />
@@ -96,7 +98,7 @@ export default function SwipeableMedia({ media }: SwipeableMediaProps) {
       </div>
       
       {media.length > 1 && (
-        <div className="flex justify-center gap-2 py-6">
+        <div className="flex justify-center gap-2" style={{ paddingTop: '40px', paddingBottom: '16px' }}>
           {media.map((_, index) => (
             <button
               key={index}

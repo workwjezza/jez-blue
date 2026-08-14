@@ -53,8 +53,8 @@ export default function PostDetail() {
       <div style={{ paddingTop: 'calc(56px + env(safe-area-inset-top))' }}>
         {post.postType === 'text' ? (
           <div 
-            className="w-full aspect-square flex items-center justify-center bg-white border border-black mx-auto"
-            style={{ padding: '40px', maxWidth: '100vw' }}
+            className="w-full aspect-square flex items-center justify-center bg-white mx-auto"
+            style={{ padding: '40px', maxWidth: '100vw', maxHeight: '70vh' }}
           >
             <p 
               className="text-center lowercase font-mono"
@@ -70,11 +70,11 @@ export default function PostDetail() {
           post.media && <SwipeableMedia media={post.media} />
         )}
         
-        <div className="text-center px-6 space-y-4" style={{ marginTop: '32px' }}>
+        <div className="text-center px-6" style={{ marginTop: '40px' }}>
           <p className="text-xs uppercase tracking-[0.08em] font-normal font-mono select-none user-select-none">
             {storage.formatPostNumber(post.number)}
           </p>
-          <p className="text-xs opacity-60 lowercase font-mono select-none user-select-none">
+          <p className="text-xs opacity-60 lowercase font-mono select-none user-select-none" style={{ marginTop: '8px' }}>
             {formattedDate}
           </p>
         </div>
